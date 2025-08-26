@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Jalwa Prediction</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0f2c">
+<style>
+  body { font-family: Arial, sans-serif; background: #0a0f2c; color: white; text-align: center; }
+  h1 { color: gold; }
+  .timer { font-size: 24px; margin: 20px; color: cyan; }
+  button { padding: 10px 20px; font-size: 18px; margin-top: 20px; }
+  #prediction { margin-top: 20px; font-size: 20px; color: lime; }
+</style>
+</head>
+<body>
+<h1>🎲 Jalwa Prediction</h1>
+
+<div class="timer">Period: <span id="period"></span> | Next Result in: <span id="countdown">30</span>s</div>
+
+<button onclick="predictNext()">🔮 Predict Next</button>
+<div id="prediction">No prediction yet.</div>
+
+<script>
+let period = 20250826100011317; 
+let countdown = 30;
+let predicted = null;
+let timer = document.getElementById("countdown");
+let periodSpan = document.getElementById("period");
+let predictionDiv = document.getElementById("prediction");
+
+function getResult(num){
+  let size = (num >= 5) ? "Big" : "Small";
+  let color = "Red";
+  if (num % 3 === 1) color = "Green";
+  if (num % 3 === 2) color = "Purple";
+  return { size, color };
+}
+
+function generateResult(){
+  period++;
+  let num = Math.floor(Math.random() * 10);
+  let result = getResult(num);
+  if(predicted !== null){
+    if(predicted.num === num){
+      predictionDiv.innerHTML = `✅ सही भविष्यवाणी! ${num} (${result.size}, ${result.color})`;
+    } else {
+      predictionDiv.innerHTML = `❌ Prediction गलत! Predicted ${predicted.num}, मिला ${num}`;
+    }
+    predicted = null;
+  }
+  periodSpan.innerText = period;
+}
+
+function predictNext(){
+  let num = Math.floor(Math.random() * 10);
+  let result = getResult(num);
+  predicted = { num };
+  predictionDiv.innerHTML = `🔮 अगला नंबर <b>${num}</b> (${result.size}, ${result.color}) हो सकता है`;
+}
+
+function startCountdown(){
+  countdown--;
+  if(countdown <= 0){
+    generateResult();
+    countdown = 30;
+  }
+  timer.innerText = countdown;
+}
+
+setInterval(startCountdown, 1000);
+periodSpan.innerText = period;
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(() => console.log("Service Worker Registered"));
+}
+</script>
+</body>
+</html>
